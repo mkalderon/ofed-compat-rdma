@@ -1,5 +1,5 @@
 diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
-index f4cb60b..e0e8230 100644
+index f4cb60b..802cf8d 100644
 --- a/drivers/infiniband/hw/qedr/main.c
 +++ b/drivers/infiniband/hw/qedr/main.c
 @@ -425,6 +425,7 @@ static void qedr_remove_sysfiles(struct qedr_dev *dev)
@@ -10,7 +10,7 @@ index f4cb60b..e0e8230 100644
  static void qedr_pci_set_atomic(struct qedr_dev *dev, struct pci_dev *pdev)
  {
  	int rc = pci_enable_atomic_ops_to_root(pdev,
-@@ -438,6 +439,64 @@ static void qedr_pci_set_atomic(struct qedr_dev *dev, struct pci_dev *pdev)
+@@ -438,6 +439,69 @@ static void qedr_pci_set_atomic(struct qedr_dev *dev, struct pci_dev *pdev)
  		DP_DEBUG(dev, QEDR_MSG_INIT, "Atomic capability enabled\n");
  	}
  }
@@ -39,6 +39,11 @@ index f4cb60b..e0e8230 100644
 +		rc = pcie_capability_read_dword(bridge, PCI_EXP_DEVCTL2, &ctl2);
 +		if (rc)
 +			goto disable;
++
++#ifdef CONFIG_COMPAT_RHEL_7_4
++#define PCI_EXP_DEVCTL2_ATOMIC_EGRESS_BLOCK 0x0080 /* Block atomic egress */
++#endif
++
 +
 +		if (!(cap2 & PCI_EXP_DEVCAP2_ATOMIC_ROUTE) ||
 +		    (ctl2 & PCI_EXP_DEVCTL2_ATOMIC_EGRESS_BLOCK))
@@ -75,3 +80,6 @@ index f4cb60b..e0e8230 100644
  
  static const struct qed_rdma_ops *qed_ops;
  
+-- 
+1.8.3.1
+
